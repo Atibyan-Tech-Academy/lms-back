@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'courses',
     'messaging',
     'certificates',
+    'assignments',
+    
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
