@@ -16,3 +16,5 @@ class Certificate(models.Model):
 
     def __str__(self):
         return f"Certificate: {self.student.username} - {self.course.title}"
+    
+    

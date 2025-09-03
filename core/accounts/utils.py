@@ -20,6 +20,6 @@ def _next_id(prefix, queryset, field):
 def generate_student_id(user_model):
     return _next_id("AOISTU", user_model.objects.all(), "student_id")
 
-
 def generate_lecturer_id(user_model):
     return _next_id("AOILEC", user_model.objects.all(), "lecturer_id")
+
