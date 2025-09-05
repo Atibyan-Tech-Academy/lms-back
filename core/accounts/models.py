@@ -6,7 +6,7 @@ from .utils import generate_student_id, generate_lecturer_id
 
 class Roles(models.TextChoices):
     ADMIN = 'ADMIN', 'Admin'
-    LECTURER = 'LECTURER', 'Lecturer'   # ✅ consistent
+    LECTURER = 'LECTURER', 'Lecturer'
     STUDENT = 'STUDENT', 'Student'
 
 
@@ -19,7 +19,6 @@ class User(AbstractUser):
     theme_preference = models.CharField(max_length=10, default='light')  # 'light' or 'dark'
 
     def clean(self):
-        # Prevent tampering after creation
         if not self._state.adding:
             if self.role == Roles.STUDENT and not self.student_id:
                 raise ValidationError('Student must have student_id')
@@ -27,13 +26,11 @@ class User(AbstractUser):
                 raise ValidationError('Lecturer must have lecturer_id')
 
     def save(self, *args, **kwargs):
-        # Skip ID generation for superusers and staff
         if not self.is_superuser and not self.is_staff:
             if self.role == Roles.STUDENT and not self.student_id:
                 self.student_id = generate_student_id(User)
             elif self.role == Roles.LECTURER and not self.lecturer_id:
                 self.lecturer_id = generate_lecturer_id(User)
-
         super().save(*args, **kwargs)
 
     def __str__(self):

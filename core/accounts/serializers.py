@@ -1,6 +1,5 @@
- #serializers.py
-
 from rest_framework import serializers
+from django.contrib.auth import authenticate
 from .models import User, Roles
 
 
@@ -39,47 +38,35 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+# Custom Login Serializer
+class CustomTokenObtainSerializer(serializers.Serializer):
+    identifier = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
+    def validate(self, attrs):
+        identifier = attrs.get("identifier")
+        password = attrs.get("password")
 
-#views.py:
+        user = None
+        try:
+            user = User.objects.get(email=identifier)
+        except User.DoesNotExist:
+            try:
+                user = User.objects.get(student_id=identifier)
+            except User.DoesNotExist:
+                try:
+                    user = User.objects.get(lecturer_id=identifier)
+                except User.DoesNotExist:
+                    try:
+                        user = User.objects.get(username=identifier)
+                    except User.DoesNotExist:
+                        pass
 
-from rest_framework import generics, permissions
-from .models import User
-from .serializers import UserSerializer, RegisterSerializer
+        if user is None:
+            raise serializers.ValidationError("Invalid identifier")
 
+        if not user.check_password(password):
+            raise serializers.ValidationError("Invalid password")
 
-# Register new users
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
-    permission_classes = [permissions.AllowAny]
-
-
-# Get logged-in user profile
-class ProfileView(generics.RetrieveUpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user
-
-
-
-#urls:
-
-
-from django.urls import path
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
-from .views import RegisterView, ProfileView
-
-urlpatterns = [
-    path("register/", RegisterView.as_view(), name="register"),
-    path("login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("profile/", ProfileView.as_view(), name="profile"),
-]
-
+        attrs["user"] = user
+        return attrs

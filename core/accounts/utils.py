@@ -1,4 +1,3 @@
-from django.utils import timezone
 from django.db.models import Max
 from datetime import datetime
 
@@ -22,4 +21,3 @@ def generate_student_id(user_model):
 
 def generate_lecturer_id(user_model):
     return _next_id("AOILEC", user_model.objects.all(), "lecturer_id")
-

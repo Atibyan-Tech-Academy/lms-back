@@ -9,7 +9,7 @@ class UserAdmin(BaseUserAdmin):
         (None, {"fields": ("username", "password")}),
         ("Personal info", {"fields": ("first_name", "last_name", "email", "display_name")}),
         ("Preferences", {"fields": ("theme_preference",)}),
-        ("Role & IDs", {"fields": ("role", "student_id", "lecturer_id")}),
+        ("Role & IDs", {"fields": ("role",)}),  # ✅ removed student_id & lecturer_id
         ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
         ("Important dates", {"fields": ("last_login", "date_joined")}),
     )
@@ -26,23 +26,16 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ("username", "email", "student_id", "lecturer_id")
     ordering = ("username",)
 
-    def get_readonly_fields(self, request, obj=None):
-        """Make IDs readonly (cannot be edited manually)."""
-        if obj:
-            if obj.role == Roles.STUDENT:
-                return ("student_id",)
-            elif obj.role == Roles.INSTRUCTOR:
-                return ("lecturer_id",)
-        return ()
+    readonly_fields = ("student_id", "lecturer_id")  # ✅ mark as readonly
 
     def get_fields(self, request, obj=None):
-        """Show only the relevant ID field based on role."""
+        """Show only relevant fields dynamically."""
         fields = super().get_fields(request, obj)
         if obj:
             if obj.role == Roles.STUDENT:
-                fields = [f for f in fields if f != "lecturer_id"]
-            elif obj.role == Roles.INSTRUCTOR:
-                fields = [f for f in fields if f != "student_id"]
-            else:  # ADMIN role
-                fields = [f for f in fields if f not in ("student_id", "lecturer_id")]
+                return [f for f in fields if f != "lecturer_id"]
+            elif obj.role == Roles.LECTURER:
+                return [f for f in fields if f != "student_id"]
+            else:  # Admin role
+                return [f for f in fields if f not in ("student_id", "lecturer_id")]
         return fields
