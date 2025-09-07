@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate
+from django.db.models import Q
 from .models import User, Roles
 
 
@@ -38,31 +38,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-# Custom Login Serializer
+# 🔑 Custom Login Serializer
 class CustomTokenObtainSerializer(serializers.Serializer):
     identifier = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        identifier = attrs.get("identifier")
+        identifier = attrs.get("identifier").strip()  # ✅ remove spaces
         password = attrs.get("password")
 
-        user = None
         try:
-            user = User.objects.get(email=identifier)
+            user = User.objects.get(
+                Q(username__iexact=identifier) |
+                Q(email__iexact=identifier) |
+                Q(student_id__iexact=identifier) |
+                Q(lecturer_id__iexact=identifier)
+            )
         except User.DoesNotExist:
-            try:
-                user = User.objects.get(student_id=identifier)
-            except User.DoesNotExist:
-                try:
-                    user = User.objects.get(lecturer_id=identifier)
-                except User.DoesNotExist:
-                    try:
-                        user = User.objects.get(username=identifier)
-                    except User.DoesNotExist:
-                        pass
-
-        if user is None:
             raise serializers.ValidationError("Invalid identifier")
 
         if not user.check_password(password):
