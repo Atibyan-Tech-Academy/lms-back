@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.db.models import Q
 from .models import User, Roles
 
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -20,7 +19,6 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["student_id", "lecturer_id"]
 
-
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -37,16 +35,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
-
-# 🔑 Custom Login Serializer
 class CustomTokenObtainSerializer(serializers.Serializer):
     identifier = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        identifier = attrs.get("identifier").strip()  # ✅ remove spaces
+        identifier = attrs.get("identifier").strip()
         password = attrs.get("password")
 
+        print(f"Received login attempt: identifier='{identifier}'")  # Debug
         try:
             user = User.objects.get(
                 Q(username__iexact=identifier) |
@@ -55,10 +52,13 @@ class CustomTokenObtainSerializer(serializers.Serializer):
                 Q(lecturer_id__iexact=identifier)
             )
         except User.DoesNotExist:
+            print(f"Login failed: No user found for identifier '{identifier}'")
             raise serializers.ValidationError("Invalid identifier")
 
         if not user.check_password(password):
+            print(f"Login failed: Invalid password for user '{user.username}'")
             raise serializers.ValidationError("Invalid password")
 
         attrs["user"] = user
+        print(f"Login successful for user '{user.username}'")
         return attrs

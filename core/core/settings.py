@@ -25,12 +25,22 @@ SECRET_KEY = 'django-insecure-%h9s&eixn#v#nvck@pxp09t_5)va^hc*v4fb&7&!bd+#=tqc3y
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool, default=True)
+
+# lms-backend/core/settings.py
 CORS_ALLOWED_ORIGINS = [
-# e.g., 'https://aoitech.ng'
-config('FRONTEND_ORIGIN', default='http://localhost:5173')
+    config('FRONTEND_ORIGIN', default='http://localhost:5173'),
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    # Add Whogohost subdomain later, e.g., 'https://lms.atibyan.edu.ng'
 ]
-CSRF_TRUSTED_ORIGINS = [config('FRONTEND_ORIGIN', default='http://localhost:5173')]
-ALLOWED_HOSTS = ['*']
+
+CSRF_TRUSTED_ORIGINS = [
+    config('FRONTEND_ORIGIN', default='http://localhost:5173'),
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
 
 
 # Application definition
