@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
-from pathlib import Path
 from decouple import config
+import dj_database_url
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,7 +43,11 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:3000',
 ]
 
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME')
+CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY')
+CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET')
 # Application definition
 
 INSTALLED_APPS = [
@@ -59,6 +64,8 @@ INSTALLED_APPS = [
     'messaging',
     'certificates',
     'assignments',
+    'cloudinary',
+    'cloudinary_storage',
     
 ]
 
@@ -107,23 +114,22 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if config('ENV', default='dev') == 'prod':
+ENV = config('ENV', default='dev')
+
+if ENV == 'prod':
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=config('DATABASE_URL', default='sqlite:///db.sqlite3'),
+            conn_max_age=600
+        )
+    }
+else:
     DATABASES = {
         'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('PG_NAME'),
-        'USER': config('PG_USER'),
-        'PASSWORD': config('PG_PASSWORD'),
-        'HOST': config('PG_HOST'),
-        'PORT': config('PG_PORT', default='5432')
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
-}
-else:
-    DATABASES = { 'default':
-             { 'ENGINE': 'django.db.backends.sqlite3',
-              'NAME': BASE_DIR / 'db.sqlite3' 
-              }
-     }
+    }
 
 
 # Password validation
@@ -160,10 +166,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# Media URL (Cloudinary serves files)
+MEDIA_URL = f'https://res.cloudinary.com/denae5qsw/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
