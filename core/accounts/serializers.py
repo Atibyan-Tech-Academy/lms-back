@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.db.models import Q
 from .models import User, Roles
 
+
 class UserSerializer(serializers.ModelSerializer):
     initials = serializers.SerializerMethodField()  # ✅ new field
 
@@ -24,7 +25,12 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ["student_id", "lecturer_id"]
 
     def get_initials(self, obj):
-        return obj.get_initials()
+        # ✅ Prevents error if names are missing
+        return obj.get_initials() if hasattr(obj, "get_initials") else (
+            f"{obj.first_name[:1]}{obj.last_name[:1]}".upper()
+            if obj.first_name and obj.last_name else obj.username[:2].upper()
+        )
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -34,23 +40,28 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "password", "role"]
 
     def create(self, validated_data):
+        # ✅ safer: use pop so password is not stored in clear
+        password = validated_data.pop("password")
+        role = validated_data.get("role", Roles.STUDENT)
+
         user = User.objects.create_user(
-            username=validated_data["username"],
-            email=validated_data["email"],
-            password=validated_data["password"],
-            role=validated_data.get("role", Roles.STUDENT),
+            password=password,
+            role=role,
+            **validated_data
         )
         return user
+
 
 class CustomTokenObtainSerializer(serializers.Serializer):
     identifier = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        identifier = attrs.get("identifier").strip()
+        identifier = attrs.get("identifier", "").strip()
         password = attrs.get("password")
 
-        print(f"Received login attempt: identifier='{identifier}'")  # Debug
+        print(f"Received login attempt: identifier='{identifier}'")  # Debugging log
+
         try:
             user = User.objects.get(
                 Q(username__iexact=identifier) |
@@ -60,11 +71,11 @@ class CustomTokenObtainSerializer(serializers.Serializer):
             )
         except User.DoesNotExist:
             print(f"Login failed: No user found for identifier '{identifier}'")
-            raise serializers.ValidationError("Invalid identifier")
+            raise serializers.ValidationError({"identifier": "Invalid identifier"})
 
         if not user.check_password(password):
             print(f"Login failed: Invalid password for user '{user.username}'")
-            raise serializers.ValidationError("Invalid password")
+            raise serializers.ValidationError({"password": "Invalid password"})
 
         attrs["user"] = user
         print(f"Login successful for user '{user.username}'")

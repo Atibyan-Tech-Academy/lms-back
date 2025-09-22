@@ -4,6 +4,7 @@ from cloudinary.models import CloudinaryField
 
 User = settings.AUTH_USER_MODEL
 
+
 class Course(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -28,12 +29,12 @@ class Module(models.Model):
     order = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return self.title
+        return f"{self.title} ({self.course.title})"
 
 
 class Material(models.Model):
     module = models.ForeignKey(
-        'Module',
+        Module,
         on_delete=models.CASCADE,
         related_name='materials'
     )
@@ -49,6 +50,11 @@ class Material(models.Model):
         blank=True,
         null=True,
         help_text="Upload video directly to Cloudinary"
+    )
+    video_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Optional: paste YouTube video link"
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

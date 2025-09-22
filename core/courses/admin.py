@@ -5,30 +5,32 @@ from .models import Course, Module, Material, Enrollment, StudentProgress, Annou
 
 class MaterialAdmin(admin.ModelAdmin):
     list_display = ("title", "module", "uploaded_at", "video_preview")
-
     readonly_fields = ("video_preview",)
 
     def video_preview(self, obj):
-        """Show embedded YouTube preview in admin if URL exists"""
-        if obj.video_url:
-            # Extract the video ID from YouTube link
+        if obj.video:
+            return mark_safe(
+                f'<video width="320" height="180" controls>'
+                f'<source src="{obj.video.url}" type="video/mp4">'
+                'Your browser does not support the video tag.'
+                '</video>'
+            )
+        elif obj.video_url:
             if "watch?v=" in obj.video_url:
                 video_id = obj.video_url.split("watch?v=")[-1]
             elif "youtu.be/" in obj.video_url:
                 video_id = obj.video_url.split("youtu.be/")[-1]
             else:
                 return "Invalid YouTube URL"
-
             embed_url = f"https://www.youtube.com/embed/{video_id}"
             return mark_safe(
                 f'<iframe width="320" height="180" src="{embed_url}" frameborder="0" allowfullscreen></iframe>'
             )
         return "No video"
 
-    video_preview.short_description = "YouTube Preview"
+    video_preview.short_description = "Video Preview"
 
 
-# Register models
 admin.site.register(Course)
 admin.site.register(Module)
 admin.site.register(Material, MaterialAdmin)
