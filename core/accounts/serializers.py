@@ -3,6 +3,8 @@ from django.db.models import Q
 from .models import User, Roles
 
 class UserSerializer(serializers.ModelSerializer):
+    initials = serializers.SerializerMethodField()  # ✅ new field
+
     class Meta:
         model = User
         fields = [
@@ -16,8 +18,13 @@ class UserSerializer(serializers.ModelSerializer):
             "student_id",
             "lecturer_id",
             "theme_preference",
+            "profile_picture",   # ✅ added
+            "initials",          # ✅ added
         ]
         read_only_fields = ["student_id", "lecturer_id"]
+
+    def get_initials(self, obj):
+        return obj.get_initials()
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)

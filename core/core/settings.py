@@ -17,39 +17,12 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%h9s&eixn#v#nvck@pxp09t_5)va^hc*v4fb&7&!bd+#=tqc3y'
-
-# SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-%h9s&eixn#v#nvck@pxp09t_5)va^hc*v4fb&7&!bd+#=tqc3y')
 DEBUG = config('DEBUG', cast=bool, default=True)
 
-# lms-backend/core/settings.py
-CORS_ALLOWED_ORIGINS = [
-    config('FRONTEND_ORIGIN', default='http://localhost:5173'),
-    'http://127.0.0.1:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    # Add Whogohost subdomain later, e.g., 'https://lms.atibyan.edu.ng'
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    config('FRONTEND_ORIGIN', default='http://localhost:5173'),
-    'http://127.0.0.1:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-]
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME')
-CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY')
-CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET')
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -66,13 +39,12 @@ INSTALLED_APPS = [
     'assignments',
     'cloudinary',
     'cloudinary_storage',
-    
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', #cors header changes
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -83,12 +55,8 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-    'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-    'rest_framework.permissions.IsAuthenticated',
-    )
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',),
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
 }
 
 ROOT_URLCONF = 'core.urls'
@@ -110,12 +78,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 ENV = config('ENV', default='dev')
-
 if ENV == 'prod':
     DATABASES = {
         'default': dj_database_url.config(
@@ -131,49 +95,54 @@ else:
         }
     }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
+# Cloudinary Configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
+}
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# Set default file storage for images and generic files
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+# Dynamically set MEDIA_URL based on CLOUD_NAME
+MEDIA_URL = f'https://res.cloudinary.com/{CLOUDINARY_STORAGE["CLOUD_NAME"]}/' if CLOUDINARY_STORAGE["CLOUD_NAME"] else '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'  # Required for local fallback
+
+# Static files
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media URL (Cloudinary serves files)
-MEDIA_URL = f'https://res.cloudinary.com/denae5qsw/'
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    config('FRONTEND_ORIGIN', default='http://localhost:5173'),
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    # Add Whogohost subdomain later, e.g., 'https://lms.atibyan.edu.ng'
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    config('FRONTEND_ORIGIN', default='http://localhost:5173'),
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

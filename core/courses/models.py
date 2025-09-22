@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from cloudinary.models import CloudinaryField
 
 User = settings.AUTH_USER_MODEL
 
@@ -32,7 +33,7 @@ class Module(models.Model):
 
 class Material(models.Model):
     module = models.ForeignKey(
-        Module,
+        'Module',
         on_delete=models.CASCADE,
         related_name='materials'
     )
@@ -43,10 +44,11 @@ class Material(models.Model):
         null=True,
         help_text="Upload PDFs or images here"
     )
-    video_url = models.URLField(
+    video = CloudinaryField(
+        resource_type="video",
         blank=True,
         null=True,
-        help_text="Paste YouTube video link here"
+        help_text="Upload video directly to Cloudinary"
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
