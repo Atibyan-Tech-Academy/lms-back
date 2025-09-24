@@ -1,10 +1,10 @@
+# accounts/serializers.py
 from rest_framework import serializers
 from django.db.models import Q
 from .models import User, Roles
 
-
 class UserSerializer(serializers.ModelSerializer):
-    initials = serializers.SerializerMethodField()  # ✅ new field
+    initials = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -19,18 +19,16 @@ class UserSerializer(serializers.ModelSerializer):
             "student_id",
             "lecturer_id",
             "theme_preference",
-            "profile_picture",   # ✅ added
-            "initials",          # ✅ added
+            "profile_picture",
+            "initials",
         ]
         read_only_fields = ["student_id", "lecturer_id"]
 
     def get_initials(self, obj):
-        # ✅ Prevents error if names are missing
         return obj.get_initials() if hasattr(obj, "get_initials") else (
             f"{obj.first_name[:1]}{obj.last_name[:1]}".upper()
             if obj.first_name and obj.last_name else obj.username[:2].upper()
         )
-
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -40,17 +38,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "password", "role"]
 
     def create(self, validated_data):
-        # ✅ safer: use pop so password is not stored in clear
         password = validated_data.pop("password")
         role = validated_data.get("role", Roles.STUDENT)
-
-        user = User.objects.create_user(
-            password=password,
-            role=role,
-            **validated_data
-        )
+        user = User.objects.create_user(password=password, role=role, **validated_data)
         return user
-
 
 class CustomTokenObtainSerializer(serializers.Serializer):
     identifier = serializers.CharField()
