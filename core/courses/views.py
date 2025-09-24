@@ -1,3 +1,4 @@
+# courses/views.py
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -8,11 +9,9 @@ from .serializers import (
 )
 from rest_framework.views import APIView
 
-
 class IsAdminOrInstructor(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated and (request.user.is_staff or request.user.role == 'INSTRUCTOR')
-
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
@@ -26,7 +25,6 @@ class CourseViewSet(viewsets.ModelViewSet):
             return Course.objects.filter(instructor=self.request.user)
         return Course.objects.filter(enrollments__student=self.request.user)
 
-
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module.objects.all()
     serializer_class = ModuleSerializer
@@ -39,7 +37,6 @@ class ModuleViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(course_id=self.request.data.get('course'))
-
 
 class MaterialViewSet(viewsets.ModelViewSet):
     queryset = Material.objects.all()
@@ -55,7 +52,6 @@ class MaterialViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(module_id=self.request.data.get('module'))
 
-
 class EnrollmentViewSet(viewsets.ModelViewSet):
     queryset = Enrollment.objects.all()
     serializer_class = EnrollmentSerializer
@@ -65,7 +61,6 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return Enrollment.objects.all()
         return Enrollment.objects.filter(student=self.request.user)
-
 
 class StudentProgressViewSet(viewsets.ModelViewSet):
     queryset = StudentProgress.objects.all()
@@ -84,11 +79,14 @@ class StudentProgressViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class AnnouncementViewSet(viewsets.ModelViewSet):
     queryset = Announcement.objects.all()
     serializer_class = AnnouncementSerializer
-    permission_classes = [IsAdminOrInstructor]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:  # Allow public read access
+            return [permissions.AllowAny()]
+        return [IsAdminOrInstructor()]  # Restrict create/update/delete to instructors/admins
 
     def perform_create(self, serializer):
         serializer.save(course_id=self.request.data.get('course'))
