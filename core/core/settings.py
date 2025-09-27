@@ -21,6 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-%h9s&eixn#v#nvck@pxp09t_5)va^hc*v4fb&7&!bd+#=tqc3y')
 DEBUG = config('DEBUG', cast=bool, default=True)
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -34,6 +38,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'accounts',
     'courses',
+    'editprofile',
     'messaging',
     'certificates',
     'assignments',

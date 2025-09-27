@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/assignments/', include('assignments.urls')),  # Assignment endpoints
     path('api/messaging/', include('messaging.urls')),     # Messaging endpoints
     path('api/certificates/', include('certificates.urls')),  # Certificate endpoints
+    path("api/editprofile/", include("editprofile.urls")),  # editprofile endpoints
 ]
