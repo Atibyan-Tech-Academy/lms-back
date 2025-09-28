@@ -1,8 +1,7 @@
-# core/messaging/views.py
+# LMS-BACK/messaging/views.py
 from rest_framework import viewsets, permissions
 from .models import Message
 from .serializers import MessageSerializer
-
 
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'assignments',
     'cloudinary',
     'cloudinary_storage',
+    'channels'
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -65,6 +66,21 @@ REST_FRAMEWORK = {
 }
 
 ROOT_URLCONF = 'core.urls'
+
+ASGI_APPLICATION = "core.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {"hosts": [("127.0.0.1", 6379)]},
+    },
+}
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 TEMPLATES = [
     {
@@ -121,6 +137,10 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
 
+
+
+
+
 # Set default file storage for images and generic files
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
@@ -148,6 +168,16 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ]
+
+
+
+
+
+
+
+
+
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
