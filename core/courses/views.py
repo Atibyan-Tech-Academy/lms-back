@@ -2,16 +2,17 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.views import APIView
 from .models import Course, Material, Enrollment, Module, StudentProgress, Announcement
 from .serializers import (
     CourseSerializer, MaterialSerializer, EnrollmentSerializer,
     ModuleSerializer, StudentProgressSerializer, AnnouncementSerializer
 )
-from rest_framework.views import APIView
 
+# Updated permission class
 class IsAdminOrInstructor(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and (request.user.is_staff or request.user.role == 'INSTRUCTOR')
+        return request.user.is_authenticated and (request.user.is_staff or request.user.role in ["INSTRUCTOR", "LECTURER"])
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
@@ -21,7 +22,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.user.is_staff:
             return Course.objects.all()
-        if self.request.user.role == 'INSTRUCTOR':
+        if self.request.user.role in ["INSTRUCTOR", "LECTURER"]:
             return Course.objects.filter(instructor=self.request.user)
         return Course.objects.filter(enrollments__student=self.request.user)
 
@@ -91,12 +92,13 @@ class AnnouncementViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(course_id=self.request.data.get('course'))
 
+# Fixed InstructorDashboardView to include LECTURER role
 class InstructorDashboardView(APIView):
     permission_classes = [IsAdminOrInstructor]
 
     def get(self, request):
         user = request.user
-        if not user.is_staff and user.role != "INSTRUCTOR":
+        if not user.is_staff and user.role not in ["INSTRUCTOR", "LECTURER"]:
             return Response({"detail": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
 
         # Fetch instructor’s courses

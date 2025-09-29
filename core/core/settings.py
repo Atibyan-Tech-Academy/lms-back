@@ -18,13 +18,9 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-%h9s&eixn#v#nvck@pxp09t_5)va^hc*v4fb&7&!bd+#=tqc3y')
 DEBUG = config('DEBUG', cast=bool, default=True)
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -34,23 +30,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third-party
     'rest_framework',
     'corsheaders',
+    'cloudinary',
+    'cloudinary_storage',
+    'channels',
+
+    # Your apps
     'accounts',
     'courses',
     'editprofile',
     'messaging',
     'certificates',
     'assignments',
-    'cloudinary',
-    'cloudinary_storage',
-    'channels'
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # MUST be first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,15 +60,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',),
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
-}
-
 ROOT_URLCONF = 'core.urls'
+ASGI_APPLICATION = 'core.asgi.application'
 
-ASGI_APPLICATION = "core.asgi.application"
-
+# Channels
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -76,12 +71,14 @@ CHANNEL_LAYERS = {
     },
 }
 
+# Celery
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -130,54 +127,42 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Cloudinary Configuration
+# Cloudinary
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
     'API_KEY': config('CLOUDINARY_API_KEY', default=''),
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
-
-
-
-
-
-# Set default file storage for images and generic files
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-# Dynamically set MEDIA_URL based on CLOUD_NAME
 MEDIA_URL = f'https://res.cloudinary.com/{CLOUDINARY_STORAGE["CLOUD_NAME"]}/' if CLOUDINARY_STORAGE["CLOUD_NAME"] else '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'  # Required for local fallback
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Static files
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# CORS settings
+# REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+# CORS
 CORS_ALLOWED_ORIGINS = [
     config('FRONTEND_ORIGIN', default='http://localhost:5173'),
     'http://127.0.0.1:5173',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    # Add Whogohost subdomain later, e.g., 'https://lms.atibyan.edu.ng'
 ]
+CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = [
-    config('FRONTEND_ORIGIN', default='http://localhost:5173'),
-    'http://127.0.0.1:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-]
-
-
-
-
-
-
-
-
-
-
+# CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
