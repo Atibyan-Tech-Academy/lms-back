@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'assignments',
     'cloudinary',
     'cloudinary_storage',
-    'channels'
+    'channels',
+    'ai_chat',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'

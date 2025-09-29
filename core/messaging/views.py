@@ -1,4 +1,3 @@
-# LMS-BACK/messaging/views.py
 from rest_framework import viewsets, permissions
 from .models import Message
 from .serializers import MessageSerializer
