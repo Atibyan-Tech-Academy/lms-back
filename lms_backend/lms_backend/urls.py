@@ -19,4 +19,15 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+<<<<<<< Updated upstream:lms_backend/lms_backend/urls.py
 ]
+=======
+    path('api/accounts/', include('accounts.urls')),  # Auth and user management
+    path('api/courses/', include('courses.urls')),    # Course-related endpoints
+    path('api/assignments/', include('assignments.urls')),  # Assignment endpoints
+    path('api/messaging/', include('messaging.urls')),     # Messaging endpoints
+    path('api/certificates/', include('certificates.urls')),  # Certificate endpoints
+    path("api/editprofile/", include("editprofile.urls")),  # editprofile endpoints
+    path('api/', include('notes.urls')),
+]
+>>>>>>> Stashed changes:core/core/urls.py
