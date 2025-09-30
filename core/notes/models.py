@@ -8,7 +8,11 @@ class Note(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
     title = models.CharField(max_length=255, blank=True)
     content = models.TextField(blank=True)
+<<<<<<< Updated upstream
     color = models.CharField(max_length=7, default="#FFF9C4")  # default sticky color
+=======
+    color = models.CharField(max_length=7, default="#FFFFFF")  # default sticky color
+>>>>>>> Stashed changes
     pos_x = models.IntegerField(default=0)
     pos_y = models.IntegerField(default=0)
     width = models.IntegerField(default=260)
