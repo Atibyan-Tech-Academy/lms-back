@@ -30,8 +30,13 @@ urlpatterns = [
     path("api/editprofile/", include("editprofile.urls")),  # editprofile endpoints
     path('api/', include('notes.urls')),
 <<<<<<< Updated upstream:lms_backend/lms_backend/urls.py
+<<<<<<< Updated upstream:lms_backend/lms_backend/urls.py
 ]
 >>>>>>> Stashed changes:core/core/urls.py
 =======
+]
+>>>>>>> Stashed changes:core/core/urls.py
+=======
+
 ]
 >>>>>>> Stashed changes:core/core/urls.py

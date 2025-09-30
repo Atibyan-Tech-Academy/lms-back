@@ -19,6 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-%h9s&eixn#v#nvck@pxp09t_5)va^hc*v4fb&7&!bd+#=tqc3y')
 DEBUG = config('DEBUG', cast=bool, default=True)
@@ -26,6 +27,11 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
 ]
+=======
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-%h9s&eixn#v#nvck@pxp09t_5)va^hc*v4fb&7&!bd+#=tqc3y')
+DEBUG = config('DEBUG', cast=bool, default=True)
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+>>>>>>> Stashed changes
 =======
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-%h9s&eixn#v#nvck@pxp09t_5)va^hc*v4fb&7&!bd+#=tqc3y')
 DEBUG = config('DEBUG', cast=bool, default=True)
@@ -45,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     'accounts',
     'courses',
     'editprofile',
@@ -58,6 +65,11 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
     'channels',
+=======
+    'cloudinary',
+    'cloudinary_storage',
+    'channels',
+>>>>>>> Stashed changes
 
     # Your apps
     'accounts',
@@ -66,6 +78,9 @@ INSTALLED_APPS = [
     'messaging',
     'certificates',
     'assignments',
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     'notes',
 ]
@@ -87,8 +102,12 @@ ROOT_URLCONF = 'core.urls'
 ASGI_APPLICATION = 'core.asgi.application'
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ASGI_APPLICATION = "core.asgi.application"
 
+=======
+# Channels
+>>>>>>> Stashed changes
 =======
 # Channels
 >>>>>>> Stashed changes
@@ -100,6 +119,10 @@ CHANNEL_LAYERS = {
 }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+# Celery
+>>>>>>> Stashed changes
 =======
 # Celery
 >>>>>>> Stashed changes
@@ -110,6 +133,10 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+# Templates
+>>>>>>> Stashed changes
 =======
 # Templates
 >>>>>>> Stashed changes
@@ -162,7 +189,11 @@ USE_I18N = True
 USE_TZ = True
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # Cloudinary Configuration
+=======
+# Cloudinary
+>>>>>>> Stashed changes
 =======
 # Cloudinary
 >>>>>>> Stashed changes
@@ -187,6 +218,9 @@ MEDIA_ROOT = BASE_DIR / 'media'  # Required for local fallback
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = f'https://res.cloudinary.com/{CLOUDINARY_STORAGE["CLOUD_NAME"]}/' if CLOUDINARY_STORAGE["CLOUD_NAME"] else '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 # Static files
@@ -195,14 +229,35 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # CORS settings
+=======
+# REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+# CORS
+>>>>>>> Stashed changes
 CORS_ALLOWED_ORIGINS = [
     config('FRONTEND_ORIGIN', default='http://localhost:5173'),
     'http://127.0.0.1:5173',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+<<<<<<< Updated upstream
     # Add Whogohost subdomain later, e.g., 'https://lms.atibyan.edu.ng'
+=======
+>>>>>>> Stashed changes
 ]
+CORS_ALLOW_CREDENTIALS = True
+
+# CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 
 CSRF_TRUSTED_ORIGINS = [
 =======

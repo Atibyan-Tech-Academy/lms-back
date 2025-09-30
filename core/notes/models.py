@@ -9,7 +9,11 @@ class Note(models.Model):
     title = models.CharField(max_length=255, blank=True)
     content = models.TextField(blank=True)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     color = models.CharField(max_length=7, default="#FFF9C4")  # default sticky color
+=======
+    color = models.CharField(max_length=7, default="#FFFFFF")  # default sticky color
+>>>>>>> Stashed changes
 =======
     color = models.CharField(max_length=7, default="#FFFFFF")  # default sticky color
 >>>>>>> Stashed changes
@@ -26,5 +30,10 @@ class Note(models.Model):
     class Meta:
         ordering = ["-pinned", "-updated_at"]
 
+<<<<<<< Updated upstream
     def __str__(self):
         return f"{self.title or 'Note'} ({self.user})"
+=======
+    def _str_(self):
+        return f"{self.title or 'Note'} ({self.user})"
+>>>>>>> Stashed changes

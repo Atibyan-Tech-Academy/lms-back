@@ -16,4 +16,8 @@ class NoteViewSet(viewsets.ModelViewSet):
         return Note.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
+<<<<<<< Updated upstream
         serializer.save(user=self.request.user)
+=======
+        serializer.save(user=self.request.user)
+>>>>>>> Stashed changes

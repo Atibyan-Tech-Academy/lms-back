@@ -10,4 +10,8 @@ class NoteSerializer(serializers.ModelSerializer):
             "width", "height", "z_index", "pinned", "archived",
             "created_at", "updated_at"
         ]
+<<<<<<< Updated upstream
         read_only_fields = ["id", "user", "created_at", "updated_at"]
+=======
+        read_only_fields = ["id", "user", "created_at", "updated_at"]
+>>>>>>> Stashed changes
