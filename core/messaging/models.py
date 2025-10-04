@@ -3,17 +3,23 @@ from django.conf import settings
 
 User = settings.AUTH_USER_MODEL
 
-
-class Message(models.Model):
-    sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
-    receiver = models.ForeignKey(User, related_name="received_messages", on_delete=models.CASCADE)
-    subject = models.CharField(max_length=255, blank=True)
-    body = models.TextField()
-    is_read = models.BooleanField(default=False)
+class Conversation(models.Model):
+    participants = models.ManyToManyField(User, related_name="conversations")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Conversation {self.id}"
+
+
+class Message(models.Model):
+    conversation = models.ForeignKey(Conversation, related_name="messages", on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["timestamp"]
 
     def __str__(self):
-        return f"From {self.sender} to {self.receiver} - {self.subject}"
+        return f"{self.sender} → {self.conversation.id}: {self.content[:20]}"

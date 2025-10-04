@@ -1,96 +1,164 @@
-"""
-Django settings for core project.
 
-Optimized for deployment on Render with a shared hosting frontend subdomain.
+"""
+Django settings for core project (LMS).
+
+Optimized for local dev and deployment (e.g., Render, Railway, etc.)
 """
 
 import os
+from pathlib import Path
 from decouple import config
 import dj_database_url
-from pathlib import Path
 
-# Build paths
+# Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-%h9s&eixn#v#nvck@pxp09t_5)va^hc*v4fb&7&!bd+#=tqc3y')  # Set in Render env
-DEBUG = config('DEBUG', cast=bool, default=False)  # False for production
-ALLOWED_HOSTS = ['*']  # Update to your Render URL (e.g., 'lms-backend.onrender.com') in production
+SECRET_KEY = config("SECRET_KEY", default="django-insecure-temp-key")
+DEBUG = config("DEBUG", cast=bool, default=True)
 
-# Application definition
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'corsheaders',
-    'accounts',
-    'messaging',  # Core app for chat
-    'cloudinary_storage',
-    'cloudinary',
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    config("BACKEND_HOST", default=""),
 ]
 
-AUTH_USER_MODEL = 'accounts.User'
+# Installed apps
+INSTALLED_APPS = [
+    # Django
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+
+    # Third-party
+    "rest_framework",
+    "corsheaders",
+    "cloudinary",
+    "cloudinary_storage",
+
+    # LMS apps
+    "accounts",
+    "assignments",
+    "certificates",
+    "courses",
+    "editprofile",
+    "messaging",
+
+    # Optional AI integration (create ai/ app later if needed)
+    "ai_chat",
+    "public_announcements",
+]
+
+AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",  # must come first
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',),
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
-}
+ROOT_URLCONF = "core.urls"
+WSGI_APPLICATION = "core.wsgi.application"
+ASGI_APPLICATION = "core.asgi.application"  # kept if you want WebSockets later
 
-ROOT_URLCONF = 'core.urls'
+# Templates
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
 
-ASGI_APPLICATION = "core.asgi.application"  # Kept for potential future WebSocket use
+# Database
+ENV = config("ENV", default="dev")
 
-# Database (Render provides DATABASE_URL)
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3',  # Fallback for local dev
-        conn_max_age=600
-    )
-}
+if ENV == "prod":
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=config("DATABASE_URL", default="sqlite:///db.sqlite3"),
+            conn_max_age=600,
+        )
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# Static files (WhiteNoise for Render)
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Static & Media
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Media files (Cloudinary)
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': config('CLOUDINARY_API_KEY'),
-    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default=""),
+    "API_KEY": config("CLOUDINARY_API_KEY", default=""),
+    "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
 }
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-MEDIA_URL = f'https://res.cloudinary.com/{CLOUDINARY_STORAGE["CLOUD_NAME"]}/' if CLOUDINARY_STORAGE["CLOUD_NAME"] else '/media/'
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/" if CLOUDINARY_STORAGE["CLOUD_NAME"] else "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
-# CORS settings (allow frontend subdomain)
+# Django REST Framework
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
+}
+
+# CORS
 CORS_ALLOWED_ORIGINS = [
-    config('FRONTEND_ORIGIN', default='http://localhost:5173'),  # Update to 'https://lms.yourdomain.com'
+    config("FRONTEND_ORIGIN", default="http://localhost:5173"),
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
-CSRF_TRUSTED_ORIGINS = [
-    config('FRONTEND_ORIGIN', default='http://localhost:5173'),
-]
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Default PK
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# === AI Integration ===
+# Hugging Face API (free tier)
+HF_API_URL = config("HF_API_URL", default="https://api-inference.huggingface.co/models/distilgpt2")
+HF_API_TOKEN = config("HF_API_TOKEN", default="")  # optional
+
+# If running locally with transformers
+LOCAL_AI_MODEL = config("LOCAL_AI_MODEL", default="distilgpt2")
+

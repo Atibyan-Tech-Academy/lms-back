@@ -1,15 +1,27 @@
-# LMS-BACK/messaging/views.py
-from rest_framework import viewsets, permissions
-from .models import Message
-from .serializers import MessageSerializer
+from rest_framework import generics, permissions
+from .models import Conversation, Message
+from .serializers import ConversationSerializer, MessageSerializer
 
-class MessageViewSet(viewsets.ModelViewSet):
+class ConversationListCreateView(generics.ListCreateAPIView):
+    serializer_class = ConversationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Conversation.objects.filter(participants=self.request.user)
+
+    def perform_create(self, serializer):
+        conv = serializer.save()
+        conv.participants.add(self.request.user)
+
+
+class MessageListCreateView(generics.ListCreateAPIView):
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        return Message.objects.filter(receiver=user) | Message.objects.filter(sender=user)
+        conv_id = self.kwargs["conv_id"]
+        return Message.objects.filter(conversation_id=conv_id)
 
     def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
+        conv_id = self.kwargs["conv_id"]
+        serializer.save(sender=self.request.user, conversation_id=conv_id)

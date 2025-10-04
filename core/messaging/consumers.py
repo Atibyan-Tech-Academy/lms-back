@@ -1,26 +1,15 @@
-# LMS-BACK/messaging/consumers.py
-from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-from rest_framework_simplejwt.tokens import AccessToken
-from django.contrib.auth.models import User
+from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import Message
+from django.contrib.auth import get_user_model
+from .models import Conversation, Message
+
+User = get_user_model()
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_id = self.scope['url_route']['kwargs']['room_id']
-        self.room_group_name = f'chat_{self.room_id}'
-
-        # Get JWT from query string
-        token = self.scope['query_string'].decode().split('token=')[-1]
-        try:
-            access_token = AccessToken(token)
-            user_id = access_token['user_id']
-            self.user = await database_sync_to_async(User.objects.get)(id=user_id)
-        except Exception:
-            await self.close()
-            return
-
+        self.conv_id = self.scope['url_route']['kwargs']['conv_id']
+        self.room_group_name = f"chat_{self.conv_id}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
@@ -29,42 +18,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        message = data['message']
-        receiver_username = data.get('receiver')  # Optional: Add receiver if needed
+        message = data["message"]
+        username = data["username"]
 
-        # Save message to database
-        await self.save_message(message, receiver_username)
+        await self.save_message(username, message)
 
-        if message.startswith('@ai'):
-            from .tasks import process_ai_message
-            process_ai_message.delay(self.room_group_name, message, self.user.username)
-        else:
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'chat_message',
-                    'message': message,
-                    'username': self.user.username,
-                }
-            )
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {"type": "chat_message", "message": message, "username": username},
+        )
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
-            'message': event['message'],
-            'username': event['username'],
+            "message": event["message"],
+            "username": event["username"],
         }))
 
     @database_sync_to_async
-    def save_message(self, message, receiver_username=None):
-        receiver = None
-        if receiver_username:
-            try:
-                receiver = User.objects.get(username=receiver_username)
-            except User.DoesNotExist:
-                pass  # Fallback to broadcast if receiver not found
-        Message.objects.create(
-            sender=self.user,
-            receiver=receiver if receiver else self.user,  # Default to self if no receiver
-            body=message,
-            subject=f"Chat in {self.room_id}"
-        )
+    def save_message(self, username, message):
+        user = User.objects.get(username=username)
+        conv = Conversation.objects.get(id=self.conv_id)
+        Message.objects.create(conversation=conv, sender=user, content=message)

@@ -1,7 +1,7 @@
-from rest_framework.routers import DefaultRouter
-from .views import MessageViewSet
+from django.urls import path
+from .views import ConversationListCreateView, MessageListCreateView
 
-router = DefaultRouter()
-router.register(r'messages', MessageViewSet, basename='message')
-
-urlpatterns = router.urls
+urlpatterns = [
+    path("conversations/", ConversationListCreateView.as_view(), name="conversations"),
+    path("conversations/<int:conv_id>/messages/", MessageListCreateView.as_view(), name="conversation-messages"),
+]

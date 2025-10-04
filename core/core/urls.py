@@ -25,4 +25,7 @@ urlpatterns = [
     path('api/messaging/', include('messaging.urls')),     # Messaging endpoints
     path('api/certificates/', include('certificates.urls')),  # Certificate endpoints
     path("api/editprofile/", include("editprofile.urls")),  # editprofile endpoints
+    path("api/messaging/", include("messaging.urls")),
+    path('api/public-announcements/', include('public_announcements.urls')),
+    # path("api/ai/", include("ai_chat.urls")),  # AI chat endpoints
 ]
