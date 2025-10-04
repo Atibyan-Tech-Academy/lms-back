@@ -3,11 +3,10 @@ from django.conf import settings
 
 class Role(models.TextChoices):
     ADMIN = 'ADMIN', 'Admin'
-    LECTURER = 'LECTURER', 'Lecturer'
+    INSTRUCTOR = 'INSTRUCTOR', 'Instructor'
     STUDENT = 'STUDENT', 'Student'
 
 class UserProfile(models.Model):
-    id = models.BigAutoField(primary_key=True)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
