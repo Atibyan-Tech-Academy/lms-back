@@ -28,4 +28,6 @@ urlpatterns = [
     path("api/messaging/", include("messaging.urls")),
     path('api/public-announcements/', include('public_announcements.urls')),
     # path("api/ai/", include("ai_chat.urls")),  # AI chat endpoints
+    path("api/support/", include("support.urls")),
+
 ]

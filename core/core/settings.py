@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     # Optional AI integration (create ai/ app later if needed)
     "ai_chat",
     "public_announcements",
+    "support",
+
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -162,3 +164,12 @@ HF_API_TOKEN = config("HF_API_TOKEN", default="")  # optional
 # If running locally with transformers
 LOCAL_AI_MODEL = config("LOCAL_AI_MODEL", default="distilgpt2")
 
+# === EMAIL CONFIGURATION ===
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "yourgmail@gmail.com"      # your Gmail address
+EMAIL_HOST_PASSWORD = "your_app_password"    # Gmail App Password (not normal password!)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+ADMIN_EMAIL = "admin@example.com"            # where support emails are sent
