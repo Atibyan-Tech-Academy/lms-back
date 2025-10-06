@@ -15,7 +15,6 @@ def _next_id(prefix, queryset, field):
 
     return f"{prefix}/{year}/{new_num:03d}"
 
-
 def generate_student_id(user_model):
     return _next_id("AOISTU", user_model.objects.all(), "student_id")
 

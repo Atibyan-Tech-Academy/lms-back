@@ -4,6 +4,8 @@ from django.core.exceptions import ValidationError
 from .utils import generate_student_id, generate_lecturer_id
 from cloudinary_storage.storage import MediaCloudinaryStorage, VideoMediaCloudinaryStorage
 from cloudinary_storage.validators import validate_video
+from django.utils import timezone
+from datetime import timedelta
 
 class Roles(models.TextChoices):
     ADMIN = 'ADMIN', 'Admin'
@@ -57,3 +59,20 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.role})"
+
+class PasswordResetCode(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)  # 6-digit code
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(minutes=15)  # Code valid for 15 minutes
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        return timezone.now() <= self.expires_at
+
+    def __str__(self):
+        return f"Code {self.code} for {self.user.email}"

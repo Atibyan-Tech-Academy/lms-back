@@ -1,4 +1,4 @@
-# Corrected core/settings.py
+# core/settings.py
 """
 Django settings for core project (LMS).
 
@@ -12,6 +12,10 @@ import dj_database_url
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Ensure logs directory exists
+LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR.mkdir(exist_ok=True)  # Creates logs directory if it doesn't exist
 
 # Security
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-temp-key")
@@ -52,7 +56,6 @@ INSTALLED_APPS = [
     "ai_chat",
     "public_announcements",
     "support",
-
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -173,7 +176,28 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "yourgmail@gmail.com"      # your Gmail address
-EMAIL_HOST_PASSWORD = "your_app_password"    # Gmail App Password (not normal password!)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="yourgmail@gmail.com")      # your Gmail address
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="your_app_password")    # Gmail App Password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 ADMIN_EMAIL = "admin@example.com"            # where support emails are sent
+
+# === LOGGING ===
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": LOGS_DIR / "app.log",  # Use LOGS_DIR
+        },
+    },
+    "loggers": {
+        "accounts": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+        },
+    },
+}
