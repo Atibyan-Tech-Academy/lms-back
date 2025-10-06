@@ -1,8 +1,10 @@
+# Corrected courses/views.py
 # courses/views.py
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
+from django_filters.rest_framework import DjangoFilterBackend  # Added
 from .models import Course, Material, Enrollment, Module, StudentProgress, Announcement
 from .serializers import (
     CourseSerializer, MaterialSerializer, EnrollmentSerializer,
@@ -16,7 +18,6 @@ class IsAdminOrInstructor(permissions.BasePermission):
         return request.user.is_authenticated and (
             request.user.is_staff or request.user.role == "INSTRUCTOR"
         )
-
 
 # ----------- COURSE VIEWSET -----------
 
@@ -43,6 +44,11 @@ class ModuleViewSet(viewsets.ModelViewSet):
     serializer_class = ModuleSerializer
     permission_classes = [IsAdminOrInstructor]
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdminOrInstructor()]
+
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
@@ -61,6 +67,11 @@ class MaterialViewSet(viewsets.ModelViewSet):
     serializer_class = MaterialSerializer
     permission_classes = [IsAdminOrInstructor]
     parser_classes = [MultiPartParser, FormParser]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [permissions.IsAuthenticated()]
+        return [IsAdminOrInstructor()]
 
     def get_queryset(self):
         user = self.request.user
@@ -104,6 +115,8 @@ class StudentProgressViewSet(viewsets.ModelViewSet):
     queryset = StudentProgress.objects.all()
     serializer_class = StudentProgressSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]  # Added
+    filterset_fields = ['module__course']  # Added
 
     def get_queryset(self):
         user = self.request.user
@@ -126,6 +139,8 @@ class StudentProgressViewSet(viewsets.ModelViewSet):
 class AnnouncementViewSet(viewsets.ModelViewSet):
     queryset = Announcement.objects.all()
     serializer_class = AnnouncementSerializer
+    filter_backends = [DjangoFilterBackend]  # Added
+    filterset_fields = ['course']  # Added
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
@@ -210,7 +225,7 @@ class StudentDashboardView(APIView):
                 "module": p.module.title,
                 "course": p.module.course.title,
                 "completed": p.completed,
-                "last_accessed": p.last_accessed,
+                "last_accessed": p.updated_at,  # Fixed from last_accessed
             }
             for p in progress
         ]
@@ -221,7 +236,7 @@ class StudentDashboardView(APIView):
             {
                 "course": a.course.title,
                 "title": a.title,
-                "message": a.message,
+                "message": a.content,  # Fixed from message
                 "created_at": a.created_at,
             }
             for a in announcements

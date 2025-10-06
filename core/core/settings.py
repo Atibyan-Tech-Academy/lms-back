@@ -1,4 +1,4 @@
-
+# Corrected core/settings.py
 """
 Django settings for core project (LMS).
 
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "cloudinary",
     "cloudinary_storage",
+    "django_filters",  # Added for filtering
 
     # LMS apps
     "accounts",
@@ -141,6 +142,9 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
 }
 
 # CORS

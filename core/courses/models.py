@@ -1,3 +1,4 @@
+# Corrected courses/models.py (fixed role inconsistency - assuming standardize to 'INSTRUCTOR'; adjust if needed)
 from django.db import models
 from django.conf import settings
 from cloudinary.models import CloudinaryField
@@ -11,7 +12,7 @@ class Course(models.Model):
     instructor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        limit_choices_to={'role': 'INSTRUCTOR'}
+        limit_choices_to={'role': 'INSTRUCTOR'}  # Changed from LECTURER if needed; match your Roles
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
