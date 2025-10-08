@@ -30,36 +30,58 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         user = self.get_object()
-        try:
-            profile = user.profile
-            data = self.get_serializer(user).data
-            data["profile_image"] = request.build_absolute_uri(profile.picture.url) if profile.picture else user.get_initial_avatar()
-            data["full_name"] = profile.full_name
-            data["role"] = profile.role
-            return Response(data)
-        except UserProfile.DoesNotExist:
-            logger.error(f"No UserProfile for {user.email}")
-            return Response({"detail": "User profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        profile, created = UserProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                "role": user.role,
+                "full_name": f"{user.first_name} {user.last_name}".strip() or user.display_name or user.username,
+            }
+        )
+        if created:
+            logger.info(f"Created UserProfile for {user.email}")
+        data = self.get_serializer(user).data
+        data["profile_image"] = request.build_absolute_uri(profile.picture.url) if profile.picture else user.get_initial_avatar()
+        data["full_name"] = profile.full_name
+        data["role"] = profile.role
+        return Response(data)
 
     def update(self, request, *args, **kwargs):
         user = self.get_object()
-        try:
-            profile = user.profile
-            response = super().update(request, *args, **kwargs)
+        profile, created = UserProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                "role": user.role,
+                "full_name": f"{user.first_name} {user.last_name}".strip() or user.display_name or user.username,
+            }
+        )
+        if created:
+            logger.info(f"Created UserProfile for {user.email} during update")
+        partial = True
+        user_serializer = self.get_serializer(user, data=request.data, partial=partial)
+        if user_serializer.is_valid():
+            user_serializer.save()
             if "full_name" in request.data:
                 profile.full_name = request.data["full_name"]
-            if "role" in request.data and request.data["role"] in [choice[0] for choice in Roles.choices]:
-                profile.role = request.data["role"]
-            if "picture" in request.data:
-                profile.picture = request.data["picture"]
+            if "picture" in request.FILES:
+                profile.picture = request.FILES["picture"]
+            if "role" in request.data:
+                new_role = request.data["role"]
+                if new_role in [choice[0] for choice in Roles.choices]:
+                    user.role = new_role
+                    profile.role = new_role
+                    user.save()
             profile.save()
-            response.data["profile_image"] = request.build_absolute_uri(profile.picture.url) if profile.picture else user.get_initial_avatar()
-            response.data["full_name"] = profile.full_name
-            response.data["role"] = profile.role
-            return response
-        except UserProfile.DoesNotExist:
-            logger.error(f"No UserProfile for {user.email}")
-            return Response({"detail": "User profile not found."}, status=status.HTTP_404_NOT_FOUND)
+            updated_data = self.get_serializer(user).data
+            updated_data["profile_image"] = request.build_absolute_uri(profile.picture.url) if profile.picture else user.get_initial_avatar()
+            updated_data["full_name"] = profile.full_name
+            updated_data["role"] = profile.role
+            return Response(updated_data)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all().select_related('profile')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser]
 
 class CustomLoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -70,7 +92,6 @@ class CustomLoginView(APIView):
             logger.error(f"Login error: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        # Get validated data from serializer
         data = serializer.validated_data
         user_data = data["user"]
         role = data["role"]
@@ -100,7 +121,11 @@ class PasswordResetRequestView(APIView):
             try:
                 user = User.objects.get(email=email)
                 if not hasattr(user, "profile"):
-                    UserProfile.objects.create(user=user, role=user.role, full_name=user.display_name or f"{user.first_name} {user.last_name}")
+                    UserProfile.objects.create(
+                        user=user,
+                        role=user.role,
+                        full_name=user.display_name or f"{user.first_name} {user.last_name}"
+                    )
                 code = ''.join(random.choices(string.digits, k=6))
                 PasswordResetCode.objects.create(user=user, code=code)
                 subject = "Password Reset Verification Code"

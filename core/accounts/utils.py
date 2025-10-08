@@ -1,7 +1,6 @@
 from django.db.models import Max
 from datetime import datetime
 
-
 def _next_id(prefix, queryset, field):
     """
     Generates the next unique ID for a given model and field.
@@ -27,12 +26,12 @@ def _next_id(prefix, queryset, field):
 
     return f"{prefix}/{year}/{new_num:03d}"
 
-
 def generate_student_id(model_class):
     """Generates a unique student ID."""
+    from .models import User  # Import inside function to avoid circular import
     return _next_id("AOISTU", model_class.objects.all(), "student_id")
-
 
 def generate_lecturer_id(model_class):
     """Generates a unique lecturer ID."""
+    from .models import User  # Import inside function to avoid circular import
     return _next_id("AOILEC", model_class.objects.all(), "lecturer_id")

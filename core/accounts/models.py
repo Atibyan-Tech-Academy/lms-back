@@ -1,11 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.exceptions import ValidationError
-from .utils import generate_student_id, generate_lecturer_id
-from cloudinary_storage.storage import MediaCloudinaryStorage, VideoMediaCloudinaryStorage
-from cloudinary_storage.validators import validate_video
 from django.utils import timezone
 from datetime import timedelta
+from cloudinary_storage.storage import MediaCloudinaryStorage, VideoMediaCloudinaryStorage
+from cloudinary_storage.validators import validate_video
 
 class Roles(models.TextChoices):
     ADMIN = 'ADMIN', 'Admin'
@@ -46,11 +45,12 @@ class User(AbstractUser):
                 raise ValidationError('Lecturer must have lecturer_id')
 
     def save(self, *args, **kwargs):
+        from .utils import generate_student_id, generate_lecturer_id  # Import here to avoid circular import
         if not self.is_superuser and not self.is_staff:
             if self.role == Roles.STUDENT and not self.student_id:
-                self.student_id = generate_student_id(User)
+                self.student_id = generate_student_id(self.__class__)
             elif self.role == Roles.LECTURER and not self.lecturer_id:
-                self.lecturer_id = generate_lecturer_id(User)
+                self.lecturer_id = generate_lecturer_id(self.__class__)
         super().save(*args, **kwargs)
 
     def get_initial_avatar(self):
@@ -63,7 +63,7 @@ class User(AbstractUser):
         return f"{self.username} ({self.role})"
 
 class PasswordResetCode(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()

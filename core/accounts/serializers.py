@@ -5,11 +5,14 @@ from django.contrib.auth import authenticate
 from django.db import models
 from .models import User, PasswordResetCode, Roles
 from editprofile.models import UserProfile
+import logging
+
+logger = logging.getLogger(__name__)
 
 class UserSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
-    full_name = serializers.CharField(source="profile.full_name", allow_null=True)
-    role = serializers.CharField(source="profile.role", allow_null=True)
+    full_name = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -20,7 +23,23 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
     def get_profile_image(self, obj):
-        return obj.profile.picture.url if hasattr(obj, "profile") and obj.profile.picture else None
+        try:
+            profile = obj.profile
+            return profile.picture.url if profile.picture else None
+        except UserProfile.DoesNotExist:
+            return None
+
+    def get_full_name(self, obj):
+        try:
+            return obj.profile.full_name
+        except UserProfile.DoesNotExist:
+            return f"{obj.first_name} {obj.last_name}".strip() or obj.display_name or obj.username
+
+    def get_role(self, obj):
+        try:
+            return obj.profile.role
+        except UserProfile.DoesNotExist:
+            return obj.role
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
@@ -55,7 +74,6 @@ class CustomTokenObtainSerializer(serializers.Serializer):
         identifier = attrs.get("identifier")
         password = attrs.get("password")
 
-        # Find user by email, username, student_id, or lecturer_id
         user = User.objects.filter(
             models.Q(email=identifier) |
             models.Q(username=identifier) |
@@ -66,20 +84,25 @@ class CustomTokenObtainSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError({"identifier": "No user found with this identifier."})
 
-        # Authenticate using the user's email
         user = authenticate(email=user.email, password=password)
         if not user:
             raise serializers.ValidationError({"non_field_errors": ["Invalid credentials."]})
 
-        # Generate tokens
+        if not hasattr(user, "profile"):
+            profile = UserProfile.objects.create(
+                user=user,
+                role=user.role,
+                full_name=f"{user.first_name} {user.last_name}".strip() or user.username
+            )
+            logger.info(f"Created profile for login user {user.email}")
+
         refresh = RefreshToken.for_user(user)
-        data = {
+        return {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
-            "user": UserSerializer(user, context=self.context).data,
-            "role": user.profile.role if hasattr(user, "profile") else user.role
+            "user": UserSerializer(user).data,
+            "role": user.profile.role
         }
-        return data
 
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
