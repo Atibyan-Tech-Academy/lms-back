@@ -1,9 +1,0 @@
-Received login data: {'identifier': 'admin', 'password': 'admin'}
-Received login data: {'identifier': 'admin', 'password': 'admin'}
-Received login data: {'identifier': 'student1', 'password': 'Stu12345'}
-Received login data: {'identifier': 'lecturer1', 'password': 'Lec12345'}
-Received login data: {'identifier': 'student1', 'password': 'Stu12345'}
-Received login data: {'identifier': 'lecturer1', 'password': 'Lec12345'}
-Password reset code sent to tboad04@gmail.com
-Password reset code sent to tboad04@gmail.com
-INFO 2025-10-08 10:46:04,773 autoreload Watching for file changes with StatReloader
