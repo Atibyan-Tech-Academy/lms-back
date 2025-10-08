@@ -136,16 +136,16 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL")
 ADMIN_EMAIL = config("ADMIN_EMAIL")
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {"verbose": {"format": "{levelname} {asctime} {module} {message}", "style": "{"}},
-    "handlers": {
-        "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
-        "file": {"class": "logging.FileHandler", "filename": LOGS_DIR / "app.log", "formatter": "verbose"},
-    },
-    "loggers": {
-        "": {"handlers": ["console", "file"], "level": "INFO", "propagate": True},
-        "accounts": {"handlers": ["console", "file"], "level": "INFO", "propagate": False},
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {"verbose": {"format": "{levelname} {asctime} {module} {message}", "style": "{"}},
+#     "handlers": {
+#         "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
+#         "file": {"class": "logging.FileHandler", "filename": LOGS_DIR / "app.log", "formatter": "verbose"},
+#     },
+#     "loggers": {
+#         "": {"handlers": ["console", "file"], "level": "INFO", "propagate": True},
+#         "accounts": {"handlers": ["console", "file"], "level": "INFO", "propagate": False},
+#     },
+# }
