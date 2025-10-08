@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import User, Roles
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -31,9 +31,9 @@ class UserAdmin(BaseUserAdmin):
         """Show only relevant fields dynamically."""
         fields = super().get_fields(request, obj)
         if obj:
-            if obj.role == User.Roles.STUDENT:
+            if obj.role == Roles.STUDENT:
                 return [f for f in fields if f != "lecturer_id"]
-            elif obj.role == User.Roles.LECTURER:
+            elif obj.role == Roles.LECTURER:
                 return [f for f in fields if f != "student_id"]
             else:  # Admin role
                 return [f for f in fields if f not in ("student_id", "lecturer_id")]

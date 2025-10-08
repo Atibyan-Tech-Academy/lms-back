@@ -2,7 +2,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, PasswordResetCode
+from .models import User, PasswordResetCode, Roles
 from .serializers import UserSerializer, RegisterSerializer, CustomTokenObtainSerializer, PasswordResetRequestSerializer, PasswordResetVerifySerializer, PasswordResetConfirmSerializer
 from django.middleware.csrf import get_token
 from django.core.mail import send_mail
@@ -48,7 +48,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
             response = super().update(request, *args, **kwargs)
             if "full_name" in request.data:
                 profile.full_name = request.data["full_name"]
-            if "role" in request.data and request.data["role"] in [choice[0] for choice in UserProfile.Role.choices]:
+            if "role" in request.data and request.data["role"] in [choice[0] for choice in Roles.choices]:
                 profile.role = request.data["role"]
             if "picture" in request.data:
                 profile.picture = request.data["picture"]
@@ -69,30 +69,20 @@ class CustomLoginView(APIView):
         if not serializer.is_valid():
             logger.error(f"Login error: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        user = serializer.validated_data["user"]
-        try:
-            profile = user.profile
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-                "role": profile.role,
-                "user": {
-                    "id": user.id,
-                    "username": user.username,
-                    "email": user.email,
-                    "student_id": user.student_id,
-                    "lecturer_id": user.lecturer_id,
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                    "profile_image": request.build_absolute_uri(profile.picture.url) if profile.picture else user.get_initial_avatar(),
-                    "full_name": profile.full_name,
-                    "role": profile.role,
-                }
-            })
-        except UserProfile.DoesNotExist:
-            logger.error(f"No UserProfile for {user.email}")
-            return Response({"detail": "User profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get validated data from serializer
+        data = serializer.validated_data
+        user_data = data["user"]
+        role = data["role"]
+        refresh = data["refresh"]
+        access = data["access"]
+
+        return Response({
+            "refresh": refresh,
+            "access": access,
+            "role": role,
+            "user": user_data
+        })
 
 class GetCSRFToken(APIView):
     permission_classes = [permissions.AllowAny]
