@@ -7,3 +7,171 @@ Received login data: {'identifier': 'lecturer1', 'password': 'Lec12345'}
 Password reset code sent to tboad04@gmail.com
 Password reset code sent to tboad04@gmail.com
 INFO 2025-10-08 10:46:04,773 autoreload Watching for file changes with StatReloader
+WARNING 2025-10-08 10:52:09,637 log Unauthorized: /api/public-announcements/
+WARNING 2025-10-08 10:52:09,638 log Unauthorized: /api/editprofile/profile/
+WARNING 2025-10-08 10:52:09,671 log Unauthorized: /api/public-announcements/
+WARNING 2025-10-08 10:52:09,674 log Unauthorized: /api/editprofile/profile/
+WARNING 2025-10-08 10:52:09,706 log Unauthorized: /api/accounts/refresh/
+WARNING 2025-10-08 10:52:09,714 log Unauthorized: /api/accounts/refresh/
+ERROR 2025-10-08 10:52:38,661 views Login error: {'email': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-10-08 10:52:38,663 log Bad Request: /api/accounts/login/
+INFO 2025-10-08 11:02:44,366 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py changed, reloading.
+INFO 2025-10-08 11:02:46,765 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:03:39,647 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\editprofile\models.py changed, reloading.
+INFO 2025-10-08 11:03:41,950 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:04:18,670 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\admin.py changed, reloading.
+INFO 2025-10-08 11:04:20,997 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:05:54,477 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\views.py changed, reloading.
+INFO 2025-10-08 11:05:57,125 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:07:59,976 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\assignments\permissions.py changed, reloading.
+INFO 2025-10-08 11:08:02,549 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:08:27,498 autoreload Watching for file changes with StatReloader
+ERROR 2025-10-08 11:08:36,629 log Internal Server Error: /api/accounts/login/
+Traceback (most recent call last):
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\views.py", line 69, in post
+    if not serializer.is_valid():
+           ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\serializers.py", line 225, in is_valid
+    self._validated_data = self.run_validation(self.initial_data)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\serializers.py", line 447, in run_validation
+    value = self.validate(value)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py", line 74, in validate
+    refresh = RefreshToken.for_user(user)
+              ^^^^^^^^^^^^
+NameError: name 'RefreshToken' is not defined
+ERROR 2025-10-08 11:08:49,494 log Internal Server Error: /api/accounts/login/
+Traceback (most recent call last):
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\views.py", line 69, in post
+    if not serializer.is_valid():
+           ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\serializers.py", line 225, in is_valid
+    self._validated_data = self.run_validation(self.initial_data)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\serializers.py", line 447, in run_validation
+    value = self.validate(value)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py", line 74, in validate
+    refresh = RefreshToken.for_user(user)
+              ^^^^^^^^^^^^
+NameError: name 'RefreshToken' is not defined
+INFO 2025-10-08 11:11:11,774 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\views.py changed, reloading.
+INFO 2025-10-08 11:11:13,958 autoreload Watching for file changes with StatReloader
+ERROR 2025-10-08 11:11:46,745 log Internal Server Error: /api/accounts/login/
+Traceback (most recent call last):
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\views.py", line 69, in post
+    if not serializer.is_valid():
+           ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\serializers.py", line 225, in is_valid
+    self._validated_data = self.run_validation(self.initial_data)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\serializers.py", line 447, in run_validation
+    value = self.validate(value)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py", line 74, in validate
+    refresh = RefreshToken.for_user(user)
+              ^^^^^^^^^^^^
+NameError: name 'RefreshToken' is not defined
+INFO 2025-10-08 11:13:53,900 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py changed, reloading.
+INFO 2025-10-08 11:13:56,665 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:14:00,946 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py changed, reloading.
+INFO 2025-10-08 11:14:03,611 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:14:11,617 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py changed, reloading.
+INFO 2025-10-08 11:14:14,261 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:14:30,193 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py changed, reloading.
+INFO 2025-10-08 11:14:32,802 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:17:44,744 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py changed, reloading.
+INFO 2025-10-08 11:17:47,372 autoreload Watching for file changes with StatReloader
+INFO 2025-10-08 11:17:57,982 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\serializers.py changed, reloading.
+INFO 2025-10-08 11:18:00,334 autoreload Watching for file changes with StatReloader
+ERROR 2025-10-08 11:18:16,444 log Internal Server Error: /api/accounts/login/
+Traceback (most recent call last):
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\.venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\views.py", line 74, in post
+    profile = user.profile
+              ^^^^^^^^^^^^
+AttributeError: 'ReturnDict' object has no attribute 'profile'
+INFO 2025-10-08 11:22:37,205 autoreload C:\Users\asodiq\Downloads\New folder (2)\lms-back\core\accounts\views.py changed, reloading.
+INFO 2025-10-08 11:22:40,354 autoreload Watching for file changes with StatReloader
+WARNING 2025-10-08 11:22:56,602 log Not Found: /api/editprofile/profile/
+WARNING 2025-10-08 11:22:56,654 log Not Found: /api/enrollments/
+WARNING 2025-10-08 11:22:56,662 log Not Found: /api/users/
+WARNING 2025-10-08 11:22:56,672 log Not Found: /api/materials/
+WARNING 2025-10-08 11:22:56,677 log Not Found: /api/modules/
+WARNING 2025-10-08 11:22:56,689 log Not Found: /api/progress/
+WARNING 2025-10-08 11:22:56,704 log Not Found: /api/announcements/
+WARNING 2025-10-08 11:22:56,715 log Not Found: /api/enrollments/
+WARNING 2025-10-08 11:22:56,724 log Not Found: /api/users/
+WARNING 2025-10-08 11:22:56,737 log Not Found: /api/materials/
+WARNING 2025-10-08 11:22:56,747 log Not Found: /api/modules/
+WARNING 2025-10-08 11:22:56,754 log Not Found: /api/progress/
+WARNING 2025-10-08 11:22:56,767 log Not Found: /api/announcements/

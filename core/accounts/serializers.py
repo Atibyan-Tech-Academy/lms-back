@@ -1,7 +1,10 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
+from django.contrib.auth import authenticate
+from django.db import models
 from .models import User, PasswordResetCode, Roles
 from editprofile.models import UserProfile
-from django.utils import timezone
 
 class UserSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
@@ -19,12 +22,11 @@ class UserSerializer(serializers.ModelSerializer):
     def get_profile_image(self, obj):
         return obj.profile.picture.url if hasattr(obj, "profile") and obj.profile.picture else None
 
-
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
-    role = serializers.ChoiceField(choices=Roles.choices, required=True)  # ✅ changed here
+    role = serializers.ChoiceField(choices=Roles.choices, required=True)
 
     class Meta:
         model = User
@@ -45,22 +47,39 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
-
 class CustomTokenObtainSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
+    identifier = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True, required=True)
 
     def validate(self, attrs):
-        from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-        serializer = TokenObtainPairSerializer(
-            username_field="email",
-            username=attrs["email"],
-            password=attrs["password"],
-        )
-        data = serializer.validate(attrs)
-        data["user"] = serializer.user
-        return data
+        identifier = attrs.get("identifier")
+        password = attrs.get("password")
 
+        # Find user by email, username, student_id, or lecturer_id
+        user = User.objects.filter(
+            models.Q(email=identifier) |
+            models.Q(username=identifier) |
+            models.Q(student_id=identifier) |
+            models.Q(lecturer_id=identifier)
+        ).first()
+
+        if not user:
+            raise serializers.ValidationError({"identifier": "No user found with this identifier."})
+
+        # Authenticate using the user's email
+        user = authenticate(email=user.email, password=password)
+        if not user:
+            raise serializers.ValidationError({"non_field_errors": ["Invalid credentials."]})
+
+        # Generate tokens
+        refresh = RefreshToken.for_user(user)
+        data = {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user": UserSerializer(user, context=self.context).data,
+            "role": user.profile.role if hasattr(user, "profile") else user.role
+        }
+        return data
 
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -70,14 +89,13 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             raise serializers.ValidationError("No user found with this email.")
         return value
 
-
 class PasswordResetVerifySerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
 
     def validate(self, attrs):
         try:
-            reset_code = PasswordResetCode.objects.get(
+            PasswordResetCode.objects.get(
                 user__email=attrs["email"],
                 code=attrs["code"],
                 expires_at__gt=timezone.now(),
@@ -86,7 +104,6 @@ class PasswordResetVerifySerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid or expired verification code.")
         return attrs
 
-
 class PasswordResetConfirmSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
@@ -94,7 +111,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         try:
-            reset_code = PasswordResetCode.objects.get(
+            PasswordResetCode.objects.get(
                 user__email=attrs["email"],
                 code=attrs["code"],
                 expires_at__gt=timezone.now(),
