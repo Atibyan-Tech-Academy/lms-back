@@ -1,10 +1,8 @@
-# Corrected courses/models.py (fixed role inconsistency - assuming standardize to 'INSTRUCTOR'; adjust if needed)
 from django.db import models
 from django.conf import settings
 from cloudinary.models import CloudinaryField
 
 User = settings.AUTH_USER_MODEL
-
 
 class Course(models.Model):
     title = models.CharField(max_length=200)
@@ -12,13 +10,12 @@ class Course(models.Model):
     instructor = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        limit_choices_to={'role': 'INSTRUCTOR'}  # Changed from LECTURER if needed; match your Roles
+        limit_choices_to={'role': 'LECTURER'}  # Fixed from INSTRUCTOR
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
-
 
 class Module(models.Model):
     course = models.ForeignKey(
@@ -31,7 +28,6 @@ class Module(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.course.title})"
-
 
 class Material(models.Model):
     module = models.ForeignKey(
@@ -62,7 +58,6 @@ class Material(models.Model):
     def __str__(self):
         return f"{self.title} - {self.module.course.title}"
 
-
 class Enrollment(models.Model):
     student = models.ForeignKey(
         User,
@@ -81,7 +76,6 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.student.username} enrolled in {self.course.title}"
-
 
 class StudentProgress(models.Model):
     student = models.ForeignKey(
@@ -102,7 +96,6 @@ class StudentProgress(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.module.title}"
-
 
 class Announcement(models.Model):
     title = models.CharField(max_length=200)
