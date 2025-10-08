@@ -19,15 +19,12 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/accounts/', include('accounts.urls')),  # Auth and user management
-    path('api/courses/', include('courses.urls')),    # Course-related endpoints
-    path('api/assignments/', include('assignments.urls')),  # Assignment endpoints
-    path('api/messaging/', include('messaging.urls')),     # Messaging endpoints
-    path('api/certificates/', include('certificates.urls')),  # Certificate endpoints
-    path("api/editprofile/", include("editprofile.urls")),  # editprofile endpoints
-    path("api/messaging/", include("messaging.urls")),
+    path('api/accounts/', include('accounts.urls')),
+    path('api/courses/', include('courses.urls')),
+    path('api/assignments/', include('assignments.urls')),
+    path('api/messaging/', include('messaging.urls')),  # Removed duplicate
+    path('api/certificates/', include('certificates.urls')),
+    path("api/editprofile/", include("editprofile.urls")),
     path('api/public-announcements/', include('public_announcements.urls')),
-    # path("api/ai/", include("ai_chat.urls")),  # AI chat endpoints
     path("api/support/", include("support.urls")),
-
 ]

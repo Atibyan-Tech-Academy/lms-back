@@ -18,7 +18,7 @@ class User(AbstractUser):
     student_id = models.CharField(max_length=32, blank=True, null=True, unique=True, editable=False)
     lecturer_id = models.CharField(max_length=32, blank=True, null=True, unique=True, editable=False)
     display_name = models.CharField(max_length=100, blank=True)
-    theme_preference = models.CharField(max_length=10, default='light')  # 'light' or 'dark'
+    theme_preference = models.CharField(max_length=10, default='light')
     profile_image = models.ImageField(
         upload_to='user_profiles/',
         blank=True,
@@ -34,6 +34,9 @@ class User(AbstractUser):
         validators=[validate_video],
         help_text="Upload an intro video (optional)"
     )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     def clean(self):
         if not self._state.adding:
@@ -51,24 +54,23 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
     def get_initial_avatar(self):
-        """Return the first letter of the display_name or username if no profile_image."""
         if self.profile_image:
             return self.profile_image.url
         name = self.display_name or self.username
-        return f"{name[0].upper()}" if name else "U"  # Default to 'U' if no name
+        return f"{name[0].upper()}" if name else "U"
 
     def __str__(self):
         return f"{self.username} ({self.role})"
 
 class PasswordResetCode(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    code = models.CharField(max_length=6)  # 6-digit code
+    code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
 
     def save(self, *args, **kwargs):
         if not self.expires_at:
-            self.expires_at = timezone.now() + timedelta(minutes=15)  # Code valid for 15 minutes
+            self.expires_at = timezone.now() + timedelta(minutes=15)
         super().save(*args, **kwargs)
 
     def is_valid(self):
