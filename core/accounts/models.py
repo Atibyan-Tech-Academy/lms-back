@@ -34,8 +34,8 @@ class User(AbstractUser):
         help_text="Upload an intro video (optional)"
     )
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    # USERNAME_FIELD = 'email'
+    # REQUIRED_FIELDS = ['username']
 
     def clean(self):
         if not self._state.adding:

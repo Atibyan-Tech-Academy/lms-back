@@ -1,3 +1,4 @@
+# accounts/serializers.py
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
@@ -71,8 +72,10 @@ class CustomTokenObtainSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, required=True)
 
     def validate(self, attrs):
-        identifier = attrs.get("identifier")
-        password = attrs.get("password")
+        identifier = attrs.get("identifier").strip() if attrs.get("identifier") else ""
+        password = attrs.get("password").strip() if attrs.get("password") else ""
+
+        logger.info(f"Login attempt with identifier: {identifier}")
 
         user = User.objects.filter(
             models.Q(email=identifier) |
@@ -82,11 +85,22 @@ class CustomTokenObtainSerializer(serializers.Serializer):
         ).first()
 
         if not user:
+            logger.warning(f"No user found for identifier: {identifier}")
             raise serializers.ValidationError({"identifier": "No user found with this identifier."})
 
-        user = authenticate(email=user.email, password=password)
-        if not user:
-            raise serializers.ValidationError({"non_field_errors": ["Invalid credentials."]})
+        if user.email == identifier:
+            authenticated_user = authenticate(username=user.email, password=password)
+            if not authenticated_user:
+                logger.warning(f"Invalid password for user email: {user.email}")
+                raise serializers.ValidationError({"non_field_errors": ["Invalid credentials."]})
+        else:
+            if not user.check_password(password):
+                logger.warning(f"Invalid password for user: {user.email}")
+                raise serializers.ValidationError({"non_field_errors": ["Invalid credentials."]})
+
+        if not user.is_active:
+            logger.warning(f"User account disabled: {user.email}")
+            raise serializers.ValidationError({"non_field_errors": ["User account is disabled."]})
 
         if not hasattr(user, "profile"):
             profile = UserProfile.objects.create(
@@ -101,7 +115,7 @@ class CustomTokenObtainSerializer(serializers.Serializer):
             "refresh": str(refresh),
             "access": str(refresh.access_token),
             "user": UserSerializer(user).data,
-            "role": user.profile.role
+            "role": user.profile.role if hasattr(user, "profile") else user.role
         }
 
 class PasswordResetRequestSerializer(serializers.Serializer):
