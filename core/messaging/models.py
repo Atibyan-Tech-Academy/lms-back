@@ -1,25 +1,26 @@
 from django.db import models
-from django.conf import settings
+from django.contrib.auth import get_user_model
 
-User = settings.AUTH_USER_MODEL
+User = get_user_model()
 
-class Conversation(models.Model):
-    participants = models.ManyToManyField(User, related_name="conversations")
+class ChatRoom(models.Model):
+    name = models.CharField(max_length=255, blank=True)  # Blank for one-on-one
+    participants = models.ManyToManyField(User, related_name="chat_rooms")
     created_at = models.DateTimeField(auto_now_add=True)
+    is_one_on_one = models.BooleanField(default=False)  # True for individual chats
 
     def __str__(self):
-        return f"Conversation {self.id}"
-
+        if self.is_one_on_one:
+            participants = self.participants.all()
+            return f"Chat between {participants[0]} and {participants[1]}" if participants else "One-on-One Chat"
+        return self.name or "Unnamed Room"
 
 class Message(models.Model):
-    conversation = models.ForeignKey(Conversation, related_name="messages", on_delete=models.CASCADE)
-    sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
+    room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name="messages", null=True)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ["timestamp"]
+    read_by = models.ManyToManyField(User, related_name="read_messages", blank=True)
 
     def __str__(self):
-        return f"{self.sender} → {self.conversation.id}: {self.content[:20]}"
+        return f"{self.sender} in {self.room}: {self.content[:50]}"

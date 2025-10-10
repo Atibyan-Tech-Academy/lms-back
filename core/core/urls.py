@@ -27,4 +27,7 @@ urlpatterns = [
     path("api/editprofile/", include("editprofile.urls")),
     path('api/public-announcements/', include('public_announcements.urls')),
     path("api/support/", include("support.urls")),
+    path('api/', include('ai_chat.urls')),
+    path('api/', include('messaging.urls')),
 ]
+
