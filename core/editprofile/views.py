@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import UserProfile
 from .serializers import UserProfileSerializer
 
@@ -21,14 +21,21 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         elif request.method == "PUT":
-            serializer = self.get_serializer(profile, data=request.data, partial=True)
+            # Restrict role and department updates to admins
+            data = request.data.copy()
+            if not request.user.is_superuser:
+                if "role" in data:
+                    return Response({"detail": "Role can only be updated by admin"}, status=status.HTTP_403_FORBIDDEN)
+                if "department" in data:
+                    return Response({"detail": "Department can only be updated by admin"}, status=status.HTTP_403_FORBIDDEN)
+            serializer = self.get_serializer(profile, data=data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
             # Update user first_name / last_name
-            first_name = request.data.get("first_name")
-            last_name = request.data.get("last_name")
-            password = request.data.get("password")
+            first_name = data.get("first_name")
+            last_name = data.get("last_name")
+            password = data.get("password")
             user = request.user
             if first_name is not None:
                 user.first_name = first_name
