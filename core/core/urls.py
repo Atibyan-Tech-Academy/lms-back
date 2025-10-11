@@ -29,5 +29,6 @@ urlpatterns = [
     path("api/support/", include("support.urls")),
     path('api/', include('ai_chat.urls')),
     path('api/', include('messaging.urls')),
+    path('api/notes/', include('notes.urls')),  # Add notes app
 ]
 

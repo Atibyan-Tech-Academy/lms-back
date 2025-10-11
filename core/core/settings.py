@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "ai_chat",
     "public_announcements",
     "support",
+    "notes"
 ]
 
 AUTH_USER_MODEL = "accounts.User"
